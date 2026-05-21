@@ -21,6 +21,7 @@ export class OllamaError extends Error {
 export interface OllamaClientOptions {
   baseUrl: string;
   model: string;
+  temperature: number;
   timeoutMs: number;
   fetch: typeof fetch;
 }
@@ -50,12 +51,14 @@ interface OllamaTagsResponse {
 export class OllamaClient {
   private readonly baseUrl: string;
   private readonly model: string;
+  private readonly temperature: number;
   private readonly timeoutMs: number;
   private readonly fetchImpl: typeof fetch;
 
   constructor(options: OllamaClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/+$/, "");
     this.model = options.model;
+    this.temperature = options.temperature;
     this.timeoutMs = options.timeoutMs;
     this.fetchImpl = options.fetch;
   }
@@ -67,6 +70,7 @@ export class OllamaClient {
     return new OllamaClient({
       baseUrl: config.ollamaBaseUrl,
       model: config.ollamaModel,
+      temperature: config.ollamaTemperature,
       timeoutMs: config.requestTimeoutMs,
       fetch: fetchImpl
     });
@@ -81,6 +85,9 @@ export class OllamaClient {
       body: JSON.stringify({
         model: this.model,
         prompt: input.prompt,
+        options: {
+          temperature: this.temperature
+        },
         stream: false
       })
     });

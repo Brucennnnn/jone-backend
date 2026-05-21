@@ -8,6 +8,7 @@ describe("loadConfig", () => {
       port: 3000,
       ollamaBaseUrl: "http://localhost:11434",
       ollamaModel: "scb10x/typhoon2.5-qwen3-4b",
+      ollamaTemperature: 0,
       requestTimeoutMs: 30_000,
       maxScenarioLength: 12_000,
       logLevel: "info"
@@ -21,6 +22,7 @@ describe("loadConfig", () => {
         PORT: "8080",
         OLLAMA_BASE_URL: "http://ollama.local:11434",
         OLLAMA_MODEL: "custom-model",
+        OLLAMA_TEMPERATURE: "0.2",
         REQUEST_TIMEOUT_MS: "5000",
         MAX_SCENARIO_LENGTH: "1000",
         LOG_LEVEL: "debug"
@@ -30,6 +32,7 @@ describe("loadConfig", () => {
       port: 8080,
       ollamaBaseUrl: "http://ollama.local:11434",
       ollamaModel: "custom-model",
+      ollamaTemperature: 0.2,
       requestTimeoutMs: 5000,
       maxScenarioLength: 1000,
       logLevel: "debug"
@@ -45,5 +48,11 @@ describe("loadConfig", () => {
     ).toBe(
       "hf.co/mradermacher/typhoon-s-thaillm-8b-instruct-research-preview-i1-GGUF:Q4_K_M"
     );
+  });
+
+  it("falls back to default Ollama temperature when outside supported range", () => {
+    expect(loadConfig({ OLLAMA_TEMPERATURE: "-1" }).ollamaTemperature).toBe(0);
+    expect(loadConfig({ OLLAMA_TEMPERATURE: "3" }).ollamaTemperature).toBe(0);
+    expect(loadConfig({ OLLAMA_TEMPERATURE: "random" }).ollamaTemperature).toBe(0);
   });
 });

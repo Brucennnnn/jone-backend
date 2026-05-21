@@ -24,9 +24,12 @@ The server reads configuration from environment variables.
 | `PORT` | `3000` |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` |
 | `OLLAMA_MODEL` | `scb10x/typhoon2.5-qwen3-4b` |
+| `OLLAMA_TEMPERATURE` | `0` |
 | `REQUEST_TIMEOUT_MS` | `30000` |
 | `MAX_SCENARIO_LENGTH` | `12000` |
 | `LOG_LEVEL` | `info` |
+
+`OLLAMA_TEMPERATURE` is sent to Ollama generation options. Keep it at `0` for the most repeatable scam analysis responses.
 
 ## Run Ollama
 
@@ -61,6 +64,7 @@ With explicit Ollama configuration:
 ```bash
 OLLAMA_BASE_URL=http://localhost:11434 \
 OLLAMA_MODEL=scb10x/typhoon2.5-qwen3-4b \
+OLLAMA_TEMPERATURE=0 \
 npm run dev
 ```
 

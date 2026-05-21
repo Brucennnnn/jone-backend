@@ -4,6 +4,7 @@ import { OllamaClient, OllamaError } from "../src/ollama.js";
 const baseOptions = {
   baseUrl: "http://ollama.test",
   model: "scb10x/typhoon2.5-qwen3-4b",
+  temperature: 0,
   timeoutMs: 1000
 };
 
@@ -25,6 +26,9 @@ describe("OllamaClient", () => {
         body: JSON.stringify({
           model: "scb10x/typhoon2.5-qwen3-4b",
           prompt: "Suspicious SMS",
+          options: {
+            temperature: 0
+          },
           stream: false
         })
       })
