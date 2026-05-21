@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import type { AppConfig } from "./config.js";
+import { createAnalysisRouter } from "./analysis/router.js";
 import {
   createDependencyHealthResponse,
   createHealthResponse,
@@ -32,6 +33,8 @@ export function createApp(
 
     response.status(statusCode).json(health);
   });
+
+  app.use("/analysis", createAnalysisRouter(config));
 
   return app;
 }
