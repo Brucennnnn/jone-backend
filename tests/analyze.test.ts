@@ -4,6 +4,7 @@ import { createAnalyzeHandler } from "../src/analysis/handler.js";
 import { loadConfig } from "../src/config.js";
 import { OllamaError } from "../src/ollama.js";
 import { createFakeAnalysisService } from "./fakes/fakeAnalysisService.js";
+import { createInMemoryTrendStore } from "../src/trends/inMemoryTrendStore.js";
 
 const config = loadConfig({});
 
@@ -128,12 +129,34 @@ describe("POST /api/v1/scam/analyze", () => {
     expect(result.statusCode).toBe(502);
     expect(result.body.error.code).toBe("MODEL_RESPONSE_ERROR");
   });
+
+  it("records trends after a successful analysis request", async () => {
+    const trendStore = createInMemoryTrendStore();
+
+    const result = await callAnalyzeHandler(
+      { scenario: "Someone asked me to send OTP by SMS" },
+      createFakeAnalysisService({
+        response: { category: "phishing_link" }
+      }),
+      config,
+      trendStore
+    );
+
+    expect(result.statusCode).toBe(200);
+    await expect(trendStore.getTrends()).resolves.toMatchObject({
+      scamTypes: [{ category: "phishing_link", count: 1 }],
+      commonPhrases: expect.arrayContaining([
+        { phrase: "send otp", count: 1 }
+      ])
+    });
+  });
 });
 
 async function callAnalyzeHandler(
   body: Record<string, unknown>,
   service = createFakeAnalysisService(),
-  handlerConfig = config
+  handlerConfig = config,
+  trendRecorder?: Parameters<typeof createAnalyzeHandler>[2]
 ): Promise<{ statusCode: number; body: any }> {
   let statusCode = 200;
   let responseBody: any;
@@ -150,7 +173,10 @@ async function callAnalyzeHandler(
     }
   } as Response;
 
-  await createAnalyzeHandler(handlerConfig, service)(request, response);
+  await createAnalyzeHandler(handlerConfig, service, trendRecorder)(
+    request,
+    response
+  );
 
   return { statusCode, body: responseBody };
 }

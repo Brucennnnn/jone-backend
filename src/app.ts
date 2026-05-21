@@ -9,13 +9,13 @@ import {
 } from "./health.js";
 import { OllamaClient } from "./ollama.js";
 import { createTrendRoutes } from "./trends/http.js";
-import type { TrendService } from "./trends/service.js";
-import { createStaticTrendService } from "./trends/staticTrendService.js";
+import { createInMemoryTrendStore } from "./trends/inMemoryTrendStore.js";
+import type { TrendStore } from "./trends/service.js";
 
 export interface AppDependencies {
   ollamaClient?: DependencyHealthClient;
   analysisService: AnalysisService;
-  trendService?: TrendService;
+  trendStore?: TrendStore;
 }
 
 export function createApp(
@@ -25,6 +25,7 @@ export function createApp(
   const app = express();
   const ollamaClient =
     dependencies.ollamaClient ?? OllamaClient.fromConfig(config);
+  const trendStore = dependencies.trendStore ?? createInMemoryTrendStore();
 
   app.disable("x-powered-by");
   app.use(express.json({ limit: "1mb" }));
@@ -40,8 +41,8 @@ export function createApp(
     response.status(statusCode).json(health);
   });
 
-  app.use(createAnalysisRoutes(config, dependencies.analysisService));
-  app.use(createTrendRoutes(dependencies.trendService ?? createStaticTrendService()));
+  app.use(createAnalysisRoutes(config, dependencies.analysisService, trendStore));
+  app.use(createTrendRoutes(trendStore));
 
   return app;
 }

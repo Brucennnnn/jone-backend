@@ -2,9 +2,10 @@ import type { Request, Response } from "express";
 import type { AppConfig } from "../config.js";
 import { createErrorResponse } from "../errors.js";
 import { OllamaError } from "../ollama.js";
+import type { TrendRecorder } from "../trends/service.js";
 import type { AnalysisService } from "./service.js";
 import { parseAndValidate } from "./intake.js";
-import type { AnalysisRequest } from "./responseTypes.js";
+import type { AnalysisRequest, AnalysisResponse } from "./responseTypes.js";
 
 export interface AnalyzeResult {
   statusCode: number;
@@ -13,13 +14,19 @@ export interface AnalyzeResult {
 
 export function createAnalyzeHandler(
   config: AppConfig,
-  service: AnalysisService
+  service: AnalysisService,
+  trendRecorder?: TrendRecorder
 ) {
   return async function analyzeHandler(
     req: Request,
     res: Response
   ): Promise<void> {
-    const result = await handleAnalyzeRequest(req.body, config, service);
+    const result = await handleAnalyzeRequest(
+      req.body,
+      config,
+      service,
+      trendRecorder
+    );
     res.status(result.statusCode).json(result.body);
   };
 }
@@ -27,7 +34,8 @@ export function createAnalyzeHandler(
 export async function handleAnalyzeRequest(
   body: unknown,
   config: AppConfig,
-  service: AnalysisService
+  service: AnalysisService,
+  trendRecorder?: TrendRecorder
 ): Promise<AnalyzeResult> {
   const intakeResult = parseAndValidate(body, config);
 
@@ -44,7 +52,10 @@ export async function handleAnalyzeRequest(
   };
 
   try {
-    return { statusCode: 200, body: await service.analyze(request) };
+    const response = await service.analyze(request);
+    trendRecorder?.recordAnalysis(request.intake, response);
+
+    return { statusCode: 200, body: response };
   } catch (error) {
     if (error instanceof OllamaError) {
       return mapOllamaError(error);
