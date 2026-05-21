@@ -47,6 +47,21 @@ describe("trend endpoint", () => {
     });
   });
 
+  it("keeps Thai phrase with trailing number together and does not emit bare numbers", async () => {
+    const service = createInMemoryTrendStore();
+    service.recordAnalysis(
+      intake("เพื่อนชวนไปลงทุน บอกว่าจะได้ผลตอบแทน 200%"),
+      response("investment_fraud")
+    );
+
+    const result = await service.getTrends();
+    const phrases = result.commonPhrases.map((p) => p.phrase);
+
+    expect(phrases).toContain("เพื่อนชวนไปลงทุน บอกว่าจะได้ผลตอบแทน 200%");
+    expect(phrases).not.toContain("200");
+    expect(phrases).not.toContain("200%");
+  });
+
   it("does not count non-scam analysis responses", async () => {
     const service = createInMemoryTrendStore();
 
@@ -84,7 +99,7 @@ function intake(scenario: string) {
   };
 }
 
-function response(category: "call_center" | "phishing_link") {
+function response(category: "call_center" | "phishing_link" | "investment_fraud") {
   return {
     isScam: true,
     riskLevel: "high" as const,

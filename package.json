@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/server.ts",
+    "dev": "node --env-file=.env --import tsx/esm --watch src/server.ts",
     "smoke:ollama": "node scripts/smoke-ollama.mjs",
     "start": "node dist/server.js",
     "test": "vitest run"

@@ -75,7 +75,8 @@ function extractPhrases(intake: NormalizedIntake): string[] {
 }
 
 function extractThaiPhrases(value: string): string[] {
-  const matches = value.match(/[\u0E00-\u0E7F0-9]{3,}(?:\s+[\u0E00-\u0E7F0-9]{1,})?/g);
+  // Match a run of Thai words (spaces allowed between them), optionally ending with a number like 200%
+  const matches = value.match(/[\u0E00-\u0E7F]+(?:\s+[\u0E00-\u0E7F]+)*(?:\s+\d+[%+]?)?/g);
   return normalizePhraseList(matches ?? []);
 }
 
@@ -104,7 +105,7 @@ function extractEnglishPhrases(value: string): string[] {
 function normalizePhraseList(phrases: string[]): string[] {
   return phrases
     .map((phrase) => phrase.replace(/\s+/g, " ").trim())
-    .filter((phrase) => phrase.length >= 3);
+    .filter((phrase) => phrase.length >= 3 && !/^\d+[%+]?$/.test(phrase));
 }
 
 function increment(counts: Map<string, number>, value: string): void {
