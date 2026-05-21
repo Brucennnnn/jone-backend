@@ -1,5 +1,4 @@
 import { OllamaError } from "../ollama.js";
-import { applySafetyGuardrails } from "./guardrails.js";
 import { buildAnalysisPrompt } from "./promptBuilder.js";
 import { normalizeModelResponse } from "./responseNormalizer.js";
 import type { AnalysisService } from "./service.js";
@@ -17,9 +16,8 @@ export function createScamAnalysisService(
       try {
         const prompt = buildAnalysisPrompt(request.intake, request.language);
         const modelOutput = await modelClient.generate({ prompt });
-        const normalized = normalizeModelResponse(modelOutput);
 
-        return applySafetyGuardrails(normalized, request.intake.scenario);
+        return normalizeModelResponse(modelOutput);
       } catch (error) {
         if (error instanceof OllamaError) {
           throw error;

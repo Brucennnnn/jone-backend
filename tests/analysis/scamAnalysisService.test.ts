@@ -3,15 +3,15 @@ import { createScamAnalysisService } from "../../src/analysis/scamAnalysisServic
 import type { AnalysisRequest } from "../../src/analysis/responseTypes.js";
 
 describe("createScamAnalysisService", () => {
-  it("flows through prompt generation, model generation, normalization, and guardrails", async () => {
+  it("flows through prompt generation, model generation, and normalization", async () => {
     const modelClient = {
       generate: vi.fn(async () =>
         JSON.stringify({
-          isScam: false,
-          riskLevel: "low",
-          confidence: 0.4,
-          category: "not_scam",
-          explanation: "The model thought it was safe."
+          isScam: true,
+          riskLevel: "high",
+          confidence: 0.7,
+          category: "phishing_link",
+          explanation: "The model identified a suspicious link request."
         })
       )
     };
@@ -24,12 +24,13 @@ describe("createScamAnalysisService", () => {
     expect(modelClient.generate).toHaveBeenCalledWith({
       prompt: expect.stringContaining("A caller asked me to transfer money immediately")
     });
-    expect(result).toMatchObject({
+    expect(result).toEqual({
       isScam: true,
-      riskLevel: "critical",
-      category: "mule_account"
+      riskLevel: "high",
+      confidence: 0.7,
+      category: "phishing_link",
+      explanation: "The model identified a suspicious link request."
     });
-    expect(result.explanation).toContain("pause before sending money");
   });
 
   it("returns normalized fallback output for invalid model JSON", async () => {
