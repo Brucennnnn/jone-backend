@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { AppConfig } from "../config.js";
 import { createErrorResponse } from "../errors.js";
+import { OllamaError } from "../ollama.js";
 import type { AnalysisService } from "./service.js";
 import { parseAndValidate } from "./intake.js";
 import type { AnalysisRequest } from "./responseTypes.js";
@@ -38,13 +39,17 @@ export async function handleAnalyzeRequest(
   }
 
   const request: AnalysisRequest = {
-    scenario: intakeResult.intake.scenario,
+    intake: intakeResult.intake,
     language: readLanguage(body)
   };
 
   try {
     return { statusCode: 200, body: await service.analyze(request) };
-  } catch {
+  } catch (error) {
+    if (error instanceof OllamaError) {
+      return mapOllamaError(error);
+    }
+
     return {
       statusCode: 500,
       body: createErrorResponse("INTERNAL_SERVER_ERROR", "Analysis failed")
@@ -59,4 +64,30 @@ function readLanguage(body: unknown): string | undefined {
 
   const raw = body as Record<string, unknown>;
   return typeof raw.language === "string" ? raw.language : undefined;
+}
+
+function mapOllamaError(error: OllamaError): AnalyzeResult {
+  switch (error.code) {
+    case "unavailable":
+    case "missing_model":
+      return {
+        statusCode: 503,
+        body: createErrorResponse("MODEL_UNAVAILABLE", error.message)
+      };
+    case "timeout":
+      return {
+        statusCode: 504,
+        body: createErrorResponse("MODEL_TIMEOUT", error.message)
+      };
+    case "malformed_response":
+      return {
+        statusCode: 502,
+        body: createErrorResponse("MODEL_RESPONSE_ERROR", error.message)
+      };
+    case "unexpected":
+      return {
+        statusCode: 502,
+        body: createErrorResponse("MODEL_RESPONSE_ERROR", error.message)
+      };
+  }
 }

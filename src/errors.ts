@@ -1,5 +1,8 @@
 export type ErrorCode =
   | "VALIDATION_ERROR"
+  | "MODEL_UNAVAILABLE"
+  | "MODEL_TIMEOUT"
+  | "MODEL_RESPONSE_ERROR"
   | "INTERNAL_SERVER_ERROR";
 
 export interface ErrorResponse {

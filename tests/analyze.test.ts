@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { describe, expect, it } from "vitest";
 import { createAnalyzeHandler } from "../src/analysis/handler.js";
 import { loadConfig } from "../src/config.js";
+import { OllamaError } from "../src/ollama.js";
 import { createFakeAnalysisService } from "./fakes/fakeAnalysisService.js";
 
 const config = loadConfig({});
@@ -82,6 +83,50 @@ describe("POST /api/v1/scam/analyze", () => {
     expect(result.body).toEqual({
       error: { code: "INTERNAL_SERVER_ERROR", message: expect.any(String) }
     });
+  });
+
+  it("returns 503 when the model runtime is unavailable", async () => {
+    const result = await callAnalyzeHandler(
+      { scenario: "test scenario" },
+      createFakeAnalysisService({
+        error: new OllamaError("unavailable", "Ollama runtime is unavailable")
+      })
+    );
+
+    expect(result.statusCode).toBe(503);
+    expect(result.body).toEqual({
+      error: {
+        code: "MODEL_UNAVAILABLE",
+        message: "Ollama runtime is unavailable"
+      }
+    });
+  });
+
+  it("returns 504 when the model request times out", async () => {
+    const result = await callAnalyzeHandler(
+      { scenario: "test scenario" },
+      createFakeAnalysisService({
+        error: new OllamaError("timeout", "Ollama request timed out")
+      })
+    );
+
+    expect(result.statusCode).toBe(504);
+    expect(result.body.error.code).toBe("MODEL_TIMEOUT");
+  });
+
+  it("returns 502 when the model response is malformed", async () => {
+    const result = await callAnalyzeHandler(
+      { scenario: "test scenario" },
+      createFakeAnalysisService({
+        error: new OllamaError(
+          "malformed_response",
+          "Ollama generation response did not include model text"
+        )
+      })
+    );
+
+    expect(result.statusCode).toBe(502);
+    expect(result.body.error.code).toBe("MODEL_RESPONSE_ERROR");
   });
 });
 

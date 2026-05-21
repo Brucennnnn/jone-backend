@@ -1,3 +1,5 @@
+import type { NormalizedIntake } from "./requestTypes.js";
+
 export type RiskLevel = "safe" | "low" | "medium" | "high" | "critical";
 
 export type ScamCategory =
@@ -46,7 +48,7 @@ export const SCAM_CATEGORIES: ScamCategory[] = [
 ];
 
 export interface AnalysisRequest {
-  scenario: string;
+  intake: NormalizedIntake;
   language?: string;
 }
 
