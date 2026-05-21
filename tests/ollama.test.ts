@@ -31,6 +31,33 @@ describe("OllamaClient", () => {
     );
   });
 
+  it("returns thinking text when reasoning models leave response blank", async () => {
+    const fetchMock = vi.fn(async () => {
+      return jsonResponse({
+        response: "",
+        thinking:
+          '```json\n{"isScam":true,"riskLevel":"high","confidence":0.9,"category":"phishing_link","explanation":"test"}\n```'
+      });
+    });
+    const client = new OllamaClient({ ...baseOptions, fetch: fetchMock });
+
+    await expect(client.generate({ prompt: "Suspicious SMS" })).resolves.toBe(
+      '```json\n{"isScam":true,"riskLevel":"high","confidence":0.9,"category":"phishing_link","explanation":"test"}\n```'
+    );
+  });
+
+  it("treats blank response and thinking as malformed output", async () => {
+    const fetchMock = vi.fn(async () => {
+      return jsonResponse({ response: "  ", thinking: "\n" });
+    });
+    const client = new OllamaClient({ ...baseOptions, fetch: fetchMock });
+
+    await expectOllamaError(
+      client.generate({ prompt: "test" }),
+      "malformed_response"
+    );
+  });
+
   it("maps unavailable runtime errors", async () => {
     const fetchMock = vi.fn(async () => {
       throw new TypeError("fetch failed");

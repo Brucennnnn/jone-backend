@@ -39,6 +39,7 @@ export interface DependencyHealth {
 
 interface OllamaGenerateResponse {
   response?: unknown;
+  thinking?: unknown;
   error?: unknown;
 }
 
@@ -86,14 +87,16 @@ export class OllamaClient {
 
     const body = await parseJson<OllamaGenerateResponse>(response);
 
-    if (typeof body.response !== "string") {
+    const output = readGenerationText(body);
+
+    if (!output) {
       throw new OllamaError(
         "malformed_response",
         "Ollama generation response did not include model text"
       );
     }
 
-    return body.response;
+    return output;
   }
 
   async checkHealth(): Promise<DependencyHealth> {
@@ -162,6 +165,18 @@ export class OllamaClient {
       clearTimeout(timeout);
     }
   }
+}
+
+function readGenerationText(body: OllamaGenerateResponse): string | null {
+  if (typeof body.response === "string" && body.response.trim()) {
+    return body.response;
+  }
+
+  if (typeof body.thinking === "string" && body.thinking.trim()) {
+    return body.thinking;
+  }
+
+  return null;
 }
 
 async function parseJson<T>(response: Response): Promise<T> {
