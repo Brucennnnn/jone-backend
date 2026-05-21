@@ -19,6 +19,8 @@ Analyse the scenario and respond with a JSON object only, matching this exact sc
 
 Uncertainty rule: when evidence is incomplete, keep confidence below 0.7 and hedge your explanation with "likely" or "possibly" rather than asserting certainty.
 
+Input relevance rule: first decide whether the scenario is a real-world scam or fraud situation that the user wants assessed. If it is only a fictional story, roleplay, joke, random sentence, general knowledge question, or otherwise unrelated to a possible scam, return isScam=false, riskLevel="safe", category="not_scam", confidence at least 0.8, and briefly explain that the input is not a scam scenario.
+
 Safety priorities to address in your explanation when relevant:
 - Pause: advise the user to pause before taking any action
 - Verify: confirm information only through official channels, not through numbers or links provided by the contact

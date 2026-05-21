@@ -152,3 +152,16 @@ describe("buildAnalysisPrompt — uncertainty guidance", () => {
     expect(prompt).toContain("0.7");
   });
 });
+
+describe("buildAnalysisPrompt — input relevance", () => {
+  it("instructs the model to identify unrelated or fictional input as not a scam", () => {
+    const prompt = buildAnalysisPrompt(makeIntake()).toLowerCase();
+
+    expect(prompt).toContain("fictional story");
+    expect(prompt).toContain("random sentence");
+    expect(prompt).toContain("unrelated");
+    expect(prompt).toContain("isscam=false");
+    expect(prompt).toContain('risklevel="safe"');
+    expect(prompt).toContain('category="not_scam"');
+  });
+});
