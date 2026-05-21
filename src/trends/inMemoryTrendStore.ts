@@ -24,6 +24,10 @@ export function createInMemoryTrendStore(): TrendStore {
 
   return {
     recordAnalysis(intake: NormalizedIntake, response: AnalysisResponse): void {
+      if (!response.isScam) {
+        return;
+      }
+
       increment(scamTypeCounts, response.category);
 
       for (const phrase of extractPhrases(intake)) {

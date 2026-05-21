@@ -46,6 +46,26 @@ describe("trend endpoint", () => {
       count: 1
     });
   });
+
+  it("does not count non-scam analysis responses", async () => {
+    const service = createInMemoryTrendStore();
+
+    service.recordAnalysis(
+      intake("A normal appointment reminder"),
+      {
+        isScam: false,
+        riskLevel: "safe",
+        confidence: 0.9,
+        category: "not_scam",
+        explanation: "No scam indicators"
+      }
+    );
+
+    await expect(service.getTrends()).resolves.toEqual({
+      scamTypes: [],
+      commonPhrases: []
+    });
+  });
 });
 
 function intake(scenario: string) {
