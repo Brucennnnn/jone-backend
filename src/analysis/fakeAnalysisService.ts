@@ -12,7 +12,7 @@ const DEFAULT_SCAM_RESPONSE: AnalysisResponse = {
   confidence: 0.92,
   category: "call_center",
   explanation:
-    "ข้อความนี้มีลักษณะของการหลอกลวงจากแก๊งคอลเซ็นเตอร์ ไม่ควรโอนเงินหรือให้ข้อมูลส่วนตัว และควรแจ้งความที่สายด่วน 1599",
+    "ข้อความนี้มีลักษณะของการหลอกลวงจากแก๊งคอลเซ็นเตอร์ ไม่ควรโอนเงินหรือให้ข้อมูลส่วนตัว และควรแจ้งความที่สายด่วน 1599"
 };
 
 const DEFAULT_SAFE_RESPONSE: AnalysisResponse = {
@@ -21,7 +21,7 @@ const DEFAULT_SAFE_RESPONSE: AnalysisResponse = {
   confidence: 0.95,
   category: "not_scam",
   explanation:
-    "ข้อความนี้ไม่มีสัญญาณของการหลอกลวง สามารถดำเนินการได้ตามปกติ",
+    "ข้อความนี้ไม่มีสัญญาณของการหลอกลวง สามารถดำเนินการได้ตามปกติ"
 };
 
 export function createFakeAnalysisService(
@@ -33,11 +33,12 @@ export function createFakeAnalysisService(
         throw options.error;
       }
 
-      const base = options.response?.isScam === false
-        ? DEFAULT_SAFE_RESPONSE
-        : DEFAULT_SCAM_RESPONSE;
+      const base =
+        options.response?.isScam === false
+          ? DEFAULT_SAFE_RESPONSE
+          : DEFAULT_SCAM_RESPONSE;
 
       return { ...base, ...options.response };
-    },
+    }
   };
 }

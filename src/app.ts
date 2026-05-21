@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
-import type { AnalysisService } from "./analyze/analysisService.js";
-import { createAnalyzeHandler } from "./analyze/analyzeHandler.js";
-import { createFakeAnalysisService } from "./analyze/fakeAnalysisService.js";
+import type { AnalysisService } from "./analysis/analysisService.js";
+import { createAnalyzeHandler } from "./analysis/analyzeHandler.js";
+import { createFakeAnalysisService } from "./analysis/fakeAnalysisService.js";
 import type { AppConfig } from "./config.js";
 import { createAnalysisRouter } from "./analysis/router.js";
 import {

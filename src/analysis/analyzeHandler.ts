@@ -43,8 +43,7 @@ export function createAnalyzeHandler(
 
     const request: AnalysisRequest = {
       scenario: body.scenario.trim(),
-      language:
-        typeof body.language === "string" ? body.language : undefined,
+      language: typeof body.language === "string" ? body.language : undefined
     };
 
     try {
@@ -53,9 +52,7 @@ export function createAnalyzeHandler(
     } catch {
       res
         .status(500)
-        .json(
-          createErrorResponse("INTERNAL_SERVER_ERROR", "Analysis failed")
-        );
+        .json(createErrorResponse("INTERNAL_SERVER_ERROR", "Analysis failed"));
     }
   };
 }
