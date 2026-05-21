@@ -3,7 +3,7 @@ import type { AppConfig } from "../config.js";
 import { createErrorResponse } from "../errors.js";
 import type { AnalysisService } from "./analysisService.js";
 import { parseAndValidate } from "./intake.js";
-import type { AnalysisRequest } from "./types.js";
+import type { AnalysisRequest } from "./resultTypes.js";
 
 export interface AnalyzeResult {
   statusCode: number;

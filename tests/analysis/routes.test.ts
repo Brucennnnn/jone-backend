@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { loadConfig } from "../../src/config.js";
-import { handleAnalysisRequest } from "../../src/analysis/router.js";
+import { handleAnalyzeRequest } from "../../src/analysis/analyzeHandler.js";
 import { createFakeAnalysisService } from "../../src/analysis/fakeAnalysisService.js";
+import { loadConfig } from "../../src/config.js";
 
 const config = loadConfig({ MAX_SCENARIO_LENGTH: "100" });
 const service = createFakeAnalysisService();
 
-describe("POST /analysis", () => {
+describe("analysis routes", () => {
   it("returns analysis response for a valid scenario", async () => {
     const result = await post({
       scenario: "Someone pretending to be my bank asked for my OTP"
@@ -86,5 +86,5 @@ describe("POST /analysis", () => {
 });
 
 function post(body: unknown) {
-  return handleAnalysisRequest(body, config, service);
+  return handleAnalyzeRequest(body, config, service);
 }

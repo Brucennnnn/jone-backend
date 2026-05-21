@@ -1,9 +1,7 @@
 import express, { type Express } from "express";
 import type { AnalysisService } from "./analysis/analysisService.js";
-import { createAnalyzeHandler } from "./analysis/analyzeHandler.js";
-import { createFakeAnalysisService } from "./analysis/fakeAnalysisService.js";
+import { createAnalysisRoutes } from "./analysis/routes.js";
 import type { AppConfig } from "./config.js";
-import { createAnalysisRouter } from "./analysis/router.js";
 import {
   createDependencyHealthResponse,
   createHealthResponse,
@@ -13,18 +11,16 @@ import { OllamaClient } from "./ollama.js";
 
 export interface AppDependencies {
   ollamaClient?: DependencyHealthClient;
-  analysisService?: AnalysisService;
+  analysisService: AnalysisService;
 }
 
 export function createApp(
   config: AppConfig,
-  dependencies: AppDependencies = {}
+  dependencies: AppDependencies
 ): Express {
   const app = express();
   const ollamaClient =
     dependencies.ollamaClient ?? OllamaClient.fromConfig(config);
-  const analysisService =
-    dependencies.analysisService ?? createFakeAnalysisService();
 
   app.disable("x-powered-by");
   app.use(express.json({ limit: "1mb" }));
@@ -40,12 +36,7 @@ export function createApp(
     response.status(statusCode).json(health);
   });
 
-  app.use("/analysis", createAnalysisRouter(config, analysisService));
-
-  app.post(
-    "/api/v1/scam/analyze",
-    createAnalyzeHandler(config, analysisService)
-  );
+  app.use(createAnalysisRoutes(config, dependencies.analysisService));
 
   return app;
 }

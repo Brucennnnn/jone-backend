@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { createFakeAnalysisService } from "../src/analysis/fakeAnalysisService.js";
 import { createApp } from "../src/app.js";
 import { loadConfig } from "../src/config.js";
 import {
@@ -9,7 +10,9 @@ import type { DependencyHealth } from "../src/ollama.js";
 
 describe("health foundation", () => {
   it("creates the Express app without binding a port", () => {
-    const app = createApp(loadConfig({ OLLAMA_MODEL: "test-model" }));
+    const app = createApp(loadConfig({ OLLAMA_MODEL: "test-model" }), {
+      analysisService: createFakeAnalysisService()
+    });
 
     expect(app.listen).toBeTypeOf("function");
   });

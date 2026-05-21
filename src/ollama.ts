@@ -30,7 +30,7 @@ export interface GenerateInput {
 }
 
 export interface DependencyHealth {
-  status: "ok" | "unavailable" | "missing_model" | "error";
+  status: "ok" | OllamaErrorCode;
   reachable: boolean;
   model: string;
   modelAvailable: boolean;
@@ -137,11 +137,8 @@ export class OllamaClient {
       const mapped = mapUnknownError(error);
 
       return {
-        status: mapped.code === "missing_model" ? "missing_model" : "unavailable",
-        reachable:
-          mapped.code !== "unavailable" &&
-          mapped.code !== "timeout" &&
-          mapped.code !== "unexpected",
+        status: mapped.code,
+        reachable: isReachableFailure(mapped.code),
         model: this.model,
         modelAvailable: false,
         error: mapped.code
@@ -243,5 +240,13 @@ function isAbortError(error: unknown): boolean {
   return (
     error instanceof Error &&
     (error.name === "AbortError" || error.message.includes("aborted"))
+  );
+}
+
+function isReachableFailure(code: OllamaErrorCode): boolean {
+  return (
+    code === "missing_model" ||
+    code === "malformed_response" ||
+    code === "unexpected"
   );
 }

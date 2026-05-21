@@ -118,6 +118,36 @@ describe("OllamaClient", () => {
       error: "missing_model"
     });
   });
+
+  it("reports malformed dependency health when tags response is not usable", async () => {
+    const fetchMock = vi.fn(async () => {
+      return jsonResponse({ response: "not a model list" });
+    });
+    const client = new OllamaClient({ ...baseOptions, fetch: fetchMock });
+
+    await expect(client.checkHealth()).resolves.toEqual({
+      status: "malformed_response",
+      reachable: true,
+      model: "scb10x/typhoon2.5-qwen3-4b",
+      modelAvailable: false,
+      error: "malformed_response"
+    });
+  });
+
+  it("reports timeout dependency health distinctly from unavailable runtime", async () => {
+    const fetchMock = vi.fn(async () => {
+      throw new DOMException("The operation was aborted", "AbortError");
+    });
+    const client = new OllamaClient({ ...baseOptions, fetch: fetchMock });
+
+    await expect(client.checkHealth()).resolves.toEqual({
+      status: "timeout",
+      reachable: false,
+      model: "scb10x/typhoon2.5-qwen3-4b",
+      modelAvailable: false,
+      error: "timeout"
+    });
+  });
 });
 
 function jsonResponse(body: unknown, status = 200): Response {

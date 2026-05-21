@@ -4,7 +4,7 @@ import {
   type Channel,
   type NormalizedIntake,
   type ValidationFailure
-} from "./types.js";
+} from "./intakeTypes.js";
 
 export type IntakeResult =
   | { ok: true; intake: NormalizedIntake }
