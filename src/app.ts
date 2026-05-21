@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
-import type { AnalysisService } from "./analysis/analysisService.js";
-import { createAnalysisRoutes } from "./analysis/routes.js";
+import { createAnalysisRoutes } from "./analysis/http.js";
+import type { AnalysisService } from "./analysis/service.js";
 import type { AppConfig } from "./config.js";
 import {
   createDependencyHealthResponse,

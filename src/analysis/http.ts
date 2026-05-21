@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import type { AppConfig } from "../config.js";
-import type { AnalysisService } from "./analysisService.js";
-import { handleAnalyzeRequest } from "./analyzeHandler.js";
+import type { AnalysisService } from "./service.js";
+import { handleAnalyzeRequest } from "./handler.js";
 
 export function createAnalysisRoutes(
   config: AppConfig,

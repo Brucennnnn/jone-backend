@@ -1,5 +1,5 @@
 import { createApp } from "./app.js";
-import { createUnavailableAnalysisService } from "./analysis/unavailableAnalysisService.js";
+import { createUnavailableAnalysisService } from "./analysis/unavailableService.js";
 import { loadConfig } from "./config.js";
 
 const config = loadConfig();

@@ -1,4 +1,4 @@
-import type { AnalysisService } from "./analysisService.js";
+import type { AnalysisService } from "./service.js";
 
 export function createUnavailableAnalysisService(): AnalysisService {
   return {

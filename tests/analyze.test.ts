@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { describe, expect, it } from "vitest";
-import { createAnalyzeHandler } from "../src/analysis/analyzeHandler.js";
+import { createAnalyzeHandler } from "../src/analysis/handler.js";
 import { loadConfig } from "../src/config.js";
 import { createFakeAnalysisService } from "./fakes/fakeAnalysisService.js";
 
