@@ -3,6 +3,27 @@ import { handleTrendRequest } from "../src/trends/http.js";
 import { createInMemoryTrendStore } from "../src/trends/inMemoryTrendStore.js";
 
 describe("trend endpoint", () => {
+  it("returns mock default trends before live analyses are recorded", async () => {
+    const service = createInMemoryTrendStore();
+
+    await expect(service.getTrends()).resolves.toMatchObject({
+      scamTypes: [
+        { category: "call_center", count: 45 },
+        { category: "romance_scam", count: 32 },
+        { category: "phishing_link", count: 28 },
+        { category: "investment_fraud", count: 24 },
+        { category: "parcel_delivery", count: 18 }
+      ],
+      commonPhrases: [
+        { phrase: "โอนด่วน", count: 78 },
+        { phrase: "ตรวจสอบบัญชี", count: 56 },
+        { phrase: "ส่ง OTP", count: 42 },
+        { phrase: "บัญชีถูกล็อก", count: 35 },
+        { phrase: "guaranteed profit", count: 23 }
+      ]
+    });
+  });
+
   it("returns accumulated scam type and common phrase trends", async () => {
     const service = createInMemoryTrendStore();
     service.recordAnalysis(
@@ -23,8 +44,8 @@ describe("trend endpoint", () => {
     expect(result.statusCode).toBe(200);
     expect(result.body).toMatchObject({
       scamTypes: expect.arrayContaining([
-        { category: "phishing_link", count: 2 },
-        { category: "call_center", count: 1 }
+        { category: "call_center", count: 46 },
+        { category: "phishing_link", count: 30 }
       ]),
       commonPhrases: expect.arrayContaining([
         { phrase: "send otp", count: 2 }
@@ -43,7 +64,7 @@ describe("trend endpoint", () => {
 
     expect(second.scamTypes[0]).toEqual({
       category: "call_center",
-      count: 1
+      count: 46
     });
   });
 
@@ -76,9 +97,21 @@ describe("trend endpoint", () => {
       }
     );
 
-    await expect(service.getTrends()).resolves.toEqual({
-      scamTypes: [],
-      commonPhrases: []
+    await expect(service.getTrends()).resolves.toMatchObject({
+      scamTypes: [
+        { category: "call_center", count: 45 },
+        { category: "romance_scam", count: 32 },
+        { category: "phishing_link", count: 28 },
+        { category: "investment_fraud", count: 24 },
+        { category: "parcel_delivery", count: 18 }
+      ],
+      commonPhrases: [
+        { phrase: "โอนด่วน", count: 78 },
+        { phrase: "ตรวจสอบบัญชี", count: 56 },
+        { phrase: "ส่ง OTP", count: 42 },
+        { phrase: "บัญชีถูกล็อก", count: 35 },
+        { phrase: "guaranteed profit", count: 23 }
+      ]
     });
   });
 });

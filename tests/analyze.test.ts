@@ -144,7 +144,9 @@ describe("POST /api/v1/scam/analyze", () => {
 
     expect(result.statusCode).toBe(200);
     await expect(trendStore.getTrends()).resolves.toMatchObject({
-      scamTypes: [{ category: "phishing_link", count: 1 }],
+      scamTypes: expect.arrayContaining([
+        { category: "phishing_link", count: 29 }
+      ]),
       commonPhrases: expect.arrayContaining([
         { phrase: "send otp", count: 1 }
       ])

@@ -4,6 +4,20 @@ import type { TrendStore } from "./service.js";
 import type { CommonPhraseTrend, ScamTypeTrend, TrendResponse } from "./types.js";
 
 const MAX_ITEMS = 10;
+const DEFAULT_SCAM_TYPE_TRENDS: ScamTypeTrend[] = [
+  { category: "call_center", count: 45 },
+  { category: "romance_scam", count: 32 },
+  { category: "phishing_link", count: 28 },
+  { category: "investment_fraud", count: 24 },
+  { category: "parcel_delivery", count: 18 }
+];
+const DEFAULT_COMMON_PHRASE_TRENDS: CommonPhraseTrend[] = [
+  { phrase: "โอนด่วน", count: 78 },
+  { phrase: "ตรวจสอบบัญชี", count: 56 },
+  { phrase: "ส่ง OTP", count: 42 },
+  { phrase: "บัญชีถูกล็อก", count: 35 },
+  { phrase: "guaranteed profit", count: 23 }
+];
 const STOP_WORDS = new Set([
   "the",
   "and",
@@ -19,8 +33,8 @@ const STOP_WORDS = new Set([
 ]);
 
 export function createInMemoryTrendStore(): TrendStore {
-  const scamTypeCounts = new Map<string, number>();
-  const phraseCounts = new Map<string, number>();
+  const scamTypeCounts = createSeededCountMap(DEFAULT_SCAM_TYPE_TRENDS, "category");
+  const phraseCounts = createSeededCountMap(DEFAULT_COMMON_PHRASE_TRENDS, "phrase");
 
   return {
     recordAnalysis(intake: NormalizedIntake, response: AnalysisResponse): void {
@@ -48,6 +62,13 @@ export function createInMemoryTrendStore(): TrendStore {
       };
     }
   };
+}
+
+function createSeededCountMap<T extends Record<K, string> & { count: number }, K extends string>(
+  trends: T[],
+  key: K
+): Map<string, number> {
+  return new Map(trends.map((trend) => [trend[key], trend.count]));
 }
 
 function extractPhrases(intake: NormalizedIntake): string[] {
