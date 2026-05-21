@@ -165,3 +165,15 @@ describe("buildAnalysisPrompt — input relevance", () => {
     expect(prompt).toContain('category="not_scam"');
   });
 });
+
+describe("buildAnalysisPrompt — investment return guidance", () => {
+  it("distinguishes modest returns from unrealistic investment promises", () => {
+    const prompt = buildAnalysisPrompt(makeIntake()).toLowerCase();
+
+    expect(prompt).toContain("investment return");
+    expect(prompt).toContain("3%");
+    expect(prompt).toContain("not automatically a scam");
+    expect(prompt).toContain("300%");
+    expect(prompt).toContain("investment fraud");
+  });
+});
