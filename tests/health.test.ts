@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { createFakeAnalysisService } from "../src/analysis/fakeAnalysisService.js";
 import { createApp } from "../src/app.js";
 import { loadConfig } from "../src/config.js";
 import {
@@ -7,6 +6,7 @@ import {
   createHealthResponse
 } from "../src/health.js";
 import type { DependencyHealth } from "../src/ollama.js";
+import { createFakeAnalysisService } from "./fakes/fakeAnalysisService.js";
 
 describe("health foundation", () => {
   it("creates the Express app without binding a port", () => {

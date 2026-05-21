@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import { describe, expect, it } from "vitest";
 import { createAnalyzeHandler } from "../src/analysis/analyzeHandler.js";
-import { createFakeAnalysisService } from "../src/analysis/fakeAnalysisService.js";
 import { loadConfig } from "../src/config.js";
+import { createFakeAnalysisService } from "./fakes/fakeAnalysisService.js";
 
 const config = loadConfig({});
 

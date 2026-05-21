@@ -14,7 +14,6 @@ export function createAnalysisRoutes(
   };
 
   router.post("/api/v1/scam/analyze", handler);
-  router.post("/analysis", handler);
 
   return router;
 }

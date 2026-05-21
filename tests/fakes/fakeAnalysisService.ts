@@ -1,5 +1,8 @@
-import type { AnalysisService } from "./analysisService.js";
-import type { AnalysisRequest, AnalysisResponse } from "./resultTypes.js";
+import type { AnalysisService } from "../../src/analysis/analysisService.js";
+import type {
+  AnalysisRequest,
+  AnalysisResponse
+} from "../../src/analysis/resultTypes.js";
 
 export interface FakeAnalysisServiceOptions {
   response?: Partial<AnalysisResponse>;
