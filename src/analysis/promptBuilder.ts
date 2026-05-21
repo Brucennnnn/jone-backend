@@ -19,7 +19,7 @@ Analyse the scenario and respond with a JSON object only, matching this exact sc
 
 Uncertainty rule: when evidence is incomplete, keep confidence below 0.7 and hedge your explanation with "likely" or "possibly" rather than asserting certainty.
 
-Input relevance rule: first decide whether the scenario is a real-world scam or fraud situation that the user wants assessed. If it is only a fictional story, roleplay, joke, random sentence, general knowledge question, or otherwise unrelated to a possible scam, return isScam=false, riskLevel="safe", category="not_scam", confidence at least 0.8, and briefly explain that the input is not a scam scenario.
+Input relevance rule: first decide whether the scenario is a real-world scam or fraud situation that the user wants assessed. If it is only a joke, random sentence, general knowledge question, or otherwise unrelated to a possible scam, return isScam=false, riskLevel="safe", category="not_scam", confidence at least 0.8, and briefly explain that the input is not a scam scenario.
 
 Investment return rule: do not treat every investment profit percentage as high risk by itself. A modest stated return such as 3% is not automatically a scam unless paired with red flags like guaranteed profit, urgency, advance fees, unknown sender, pressure to transfer money, secrecy, fake platform links, or requests for credentials. Treat unrealistic or extreme returns such as 300%, especially when promised as guaranteed or fast profit, as a strong investment fraud signal and usually high or critical risk.
 
