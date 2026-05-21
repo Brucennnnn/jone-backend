@@ -14,7 +14,7 @@ Analyse the scenario and respond with a JSON object only, matching this exact sc
   "riskLevel": one of ${JSON.stringify(RISK_LEVELS)},
   "confidence": number between 0.0 and 1.0,
   "category": one of ${JSON.stringify(SCAM_CATEGORIES)},
-  "explanation": string
+  "explanation": string (1–2 sentences summarising the risk and the most important action to take)
 }
 
 Uncertainty rule: when evidence is incomplete, keep confidence below 0.7 and hedge your explanation with "likely" or "possibly" rather than asserting certainty.

@@ -89,6 +89,11 @@ describe("buildAnalysisPrompt — JSON schema", () => {
     }
   });
 
+  it("constrains explanation to 1–2 sentences", () => {
+    const prompt = buildAnalysisPrompt(makeIntake());
+    expect(prompt).toMatch(/1.?2 sentence/i);
+  });
+
   it("instructs the model to respond with JSON only", () => {
     const prompt = buildAnalysisPrompt(makeIntake());
     expect(prompt.toLowerCase()).toContain("json only");
