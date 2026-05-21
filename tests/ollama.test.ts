@@ -104,6 +104,36 @@ describe("OllamaClient", () => {
     });
   });
 
+  it("treats an untagged configured model as matching Ollama's latest tag", async () => {
+    const fetchMock = vi.fn(async () => {
+      return jsonResponse({
+        models: [{ name: "scb10x/typhoon2.5-qwen3-4b:latest" }]
+      });
+    });
+    const client = new OllamaClient({ ...baseOptions, fetch: fetchMock });
+
+    await expect(client.checkHealth()).resolves.toEqual({
+      status: "ok",
+      reachable: true,
+      model: "scb10x/typhoon2.5-qwen3-4b",
+      modelAvailable: true
+    });
+  });
+
+  it("uses Ollama model field as a fallback when name is absent", async () => {
+    const fetchMock = vi.fn(async () => {
+      return jsonResponse({
+        models: [{ model: "scb10x/typhoon2.5-qwen3-4b:latest" }]
+      });
+    });
+    const client = new OllamaClient({ ...baseOptions, fetch: fetchMock });
+
+    await expect(client.checkHealth()).resolves.toMatchObject({
+      status: "ok",
+      modelAvailable: true
+    });
+  });
+
   it("reports missing model dependency health", async () => {
     const fetchMock = vi.fn(async () => {
       return jsonResponse({ models: [{ name: "other-model" }] });

@@ -108,14 +108,9 @@ export class OllamaClient {
         );
       }
 
-      const modelAvailable = body.models.some((model) => {
-        return (
-          typeof model === "object" &&
-          model !== null &&
-          "name" in model &&
-          model.name === this.model
-        );
-      });
+      const modelAvailable = body.models.some((model) =>
+        modelMatchesConfiguredName(model, this.model)
+      );
 
       if (!modelAvailable) {
         return {
@@ -249,4 +244,39 @@ function isReachableFailure(code: OllamaErrorCode): boolean {
     code === "malformed_response" ||
     code === "unexpected"
   );
+}
+
+function modelMatchesConfiguredName(
+  model: unknown,
+  configuredModel: string
+): boolean {
+  if (typeof model !== "object" || model === null) {
+    return false;
+  }
+
+  return getModelNames(model).some((name) =>
+    modelNameMatches(name, configuredModel)
+  );
+}
+
+function getModelNames(model: object): string[] {
+  const names: string[] = [];
+
+  if ("name" in model && typeof model.name === "string") {
+    names.push(model.name);
+  }
+
+  if ("model" in model && typeof model.model === "string") {
+    names.push(model.model);
+  }
+
+  return names;
+}
+
+function modelNameMatches(actual: string, configured: string): boolean {
+  return actual === configured || actual === withDefaultTag(configured);
+}
+
+function withDefaultTag(model: string): string {
+  return model.includes(":") ? model : `${model}:latest`;
 }
