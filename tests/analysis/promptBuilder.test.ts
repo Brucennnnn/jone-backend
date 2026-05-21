@@ -93,6 +93,12 @@ describe("buildAnalysisPrompt — JSON schema", () => {
     const prompt = buildAnalysisPrompt(makeIntake());
     expect(prompt.toLowerCase()).toContain("json only");
   });
+
+  it("instructs the model to reply in the scenario language only", () => {
+    const prompt = buildAnalysisPrompt(makeIntake()).toLowerCase();
+    expect(prompt).toMatch(/thai.*english|english.*thai/);
+    expect(prompt).toContain("do not mix");
+  });
 });
 
 describe("buildAnalysisPrompt — safety instructions", () => {

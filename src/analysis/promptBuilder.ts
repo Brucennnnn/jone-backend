@@ -28,6 +28,8 @@ Safety priorities to address in your explanation when relevant:
 - Preserve evidence: advise keeping screenshots and message records
 - Report: guide toward reporting to the bank hotline, DSI, or police (1599 or 191) when appropriate
 
+Language rule: detect the language of the scenario and write the "explanation" in that same language only — Thai if the scenario is in Thai, English otherwise. Do not mix languages.
+
 Respond with JSON only. No markdown fences, no text outside the JSON object.`;
 }
 
