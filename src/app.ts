@@ -40,7 +40,7 @@ export function createApp(
     response.status(statusCode).json(health);
   });
 
-  app.use("/analysis", createAnalysisRouter(config));
+  app.use("/analysis", createAnalysisRouter(config, analysisService));
 
   app.post(
     "/api/v1/scam/analyze",

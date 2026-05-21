@@ -2,7 +2,13 @@ import type { Request, Response } from "express";
 import type { AppConfig } from "../config.js";
 import { createErrorResponse } from "../errors.js";
 import type { AnalysisService } from "./analysisService.js";
+import { parseAndValidate } from "./intake.js";
 import type { AnalysisRequest } from "./types.js";
+
+export interface AnalyzeResult {
+  statusCode: number;
+  body: unknown;
+}
 
 export function createAnalyzeHandler(
   config: AppConfig,
@@ -12,47 +18,45 @@ export function createAnalyzeHandler(
     req: Request,
     res: Response
   ): Promise<void> {
-    const body = req.body as Record<string, unknown>;
-
-    if (
-      typeof body.scenario !== "string" ||
-      body.scenario.trim().length === 0
-    ) {
-      res
-        .status(400)
-        .json(
-          createErrorResponse(
-            "VALIDATION_ERROR",
-            "scenario is required and must be a non-empty string"
-          )
-        );
-      return;
-    }
-
-    if (body.scenario.trim().length > config.maxScenarioLength) {
-      res
-        .status(400)
-        .json(
-          createErrorResponse(
-            "VALIDATION_ERROR",
-            `scenario must not exceed ${config.maxScenarioLength} characters`
-          )
-        );
-      return;
-    }
-
-    const request: AnalysisRequest = {
-      scenario: body.scenario.trim(),
-      language: typeof body.language === "string" ? body.language : undefined
-    };
-
-    try {
-      const result = await service.analyze(request);
-      res.status(200).json(result);
-    } catch {
-      res
-        .status(500)
-        .json(createErrorResponse("INTERNAL_SERVER_ERROR", "Analysis failed"));
-    }
+    const result = await handleAnalyzeRequest(req.body, config, service);
+    res.status(result.statusCode).json(result.body);
   };
+}
+
+export async function handleAnalyzeRequest(
+  body: unknown,
+  config: AppConfig,
+  service: AnalysisService
+): Promise<AnalyzeResult> {
+  const intakeResult = parseAndValidate(body, config);
+
+  if (!intakeResult.ok) {
+    return {
+      statusCode: 400,
+      body: createErrorResponse("VALIDATION_ERROR", intakeResult.failure.message)
+    };
+  }
+
+  const request: AnalysisRequest = {
+    scenario: intakeResult.intake.scenario,
+    language: readLanguage(body)
+  };
+
+  try {
+    return { statusCode: 200, body: await service.analyze(request) };
+  } catch {
+    return {
+      statusCode: 500,
+      body: createErrorResponse("INTERNAL_SERVER_ERROR", "Analysis failed")
+    };
+  }
+}
+
+function readLanguage(body: unknown): string | undefined {
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
+    return undefined;
+  }
+
+  const raw = body as Record<string, unknown>;
+  return typeof raw.language === "string" ? raw.language : undefined;
 }

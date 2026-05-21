@@ -1,17 +1,21 @@
 import { Router, type Request, type Response } from "express";
 import type { AppConfig } from "../config.js";
-import { parseAndValidate } from "./intake.js";
+import type { AnalysisService } from "./analysisService.js";
+import {
+  handleAnalyzeRequest,
+  type AnalyzeResult
+} from "./analyzeHandler.js";
 
-export interface AnalysisRouteResult {
-  statusCode: number;
-  body: unknown;
-}
+export type AnalysisRouteResult = AnalyzeResult;
 
-export function createAnalysisRouter(config: AppConfig): Router {
+export function createAnalysisRouter(
+  config: AppConfig,
+  service: AnalysisService
+): Router {
   const router = Router();
 
-  router.post("/", (request: Request, response: Response) => {
-    const result = handleAnalysisRequest(request.body, config);
+  router.post("/", async (request: Request, response: Response) => {
+    const result = await handleAnalysisRequest(request.body, config, service);
     response.status(result.statusCode).json(result.body);
   });
 
@@ -20,21 +24,8 @@ export function createAnalysisRouter(config: AppConfig): Router {
 
 export function handleAnalysisRequest(
   body: unknown,
-  config: AppConfig
-): AnalysisRouteResult {
-  const result = parseAndValidate(body, config);
-
-  if (!result.ok) {
-    return {
-      statusCode: 400,
-      body: {
-        error: "validation_error",
-        field: result.failure.field,
-        message: result.failure.message
-      }
-    };
-  }
-
-  // TODO: hand off to analysis service (issue #4)
-  return { statusCode: 202, body: { status: "accepted" } };
+  config: AppConfig,
+  service: AnalysisService
+): Promise<AnalysisRouteResult> {
+  return handleAnalyzeRequest(body, config, service);
 }

@@ -1,62 +1,74 @@
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "../../src/config.js";
 import { handleAnalysisRequest } from "../../src/analysis/router.js";
+import { createFakeAnalysisService } from "../../src/analysis/fakeAnalysisService.js";
 
 const config = loadConfig({ MAX_SCENARIO_LENGTH: "100" });
+const service = createFakeAnalysisService();
 
 describe("POST /analysis", () => {
-  it("returns 202 for a valid scenario", () => {
-    const result = post({
+  it("returns analysis response for a valid scenario", async () => {
+    const result = await post({
       scenario: "Someone pretending to be my bank asked for my OTP"
     });
 
-    expect(result.statusCode).toBe(202);
-  });
-
-  it("returns 400 for empty scenario", () => {
-    const result = post({ scenario: "" });
-
-    expect(result.statusCode).toBe(400);
+    expect(result.statusCode).toBe(200);
     expect(result.body).toMatchObject({
-      error: "validation_error",
-      field: "scenario"
+      isScam: true,
+      riskLevel: "high",
+      confidence: expect.any(Number),
+      category: "call_center",
+      explanation: expect.any(String)
     });
   });
 
-  it("returns 400 for missing scenario", () => {
-    const result = post({});
+  it("returns 400 for empty scenario", async () => {
+    const result = await post({ scenario: "" });
 
     expect(result.statusCode).toBe(400);
     expect(result.body).toMatchObject({
-      error: "validation_error",
-      field: "scenario"
+      error: {
+        code: "VALIDATION_ERROR",
+        message: expect.any(String)
+      }
     });
   });
 
-  it("returns 400 for oversized scenario without echoing scenario text", () => {
+  it("returns 400 for missing scenario", async () => {
+    const result = await post({});
+
+    expect(result.statusCode).toBe(400);
+    expect(result.body).toMatchObject({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: expect.any(String)
+      }
+    });
+  });
+
+  it("returns 400 for oversized scenario without echoing scenario text", async () => {
     const oversized = "x".repeat(101);
-    const result = post({ scenario: oversized });
-    const body = result.body as { error: string; message: string };
+    const result = await post({ scenario: oversized });
+    const body = result.body as { error: { message: string } };
 
     expect(result.statusCode).toBe(400);
-    expect(body.error).toBe("validation_error");
-    expect(body.message).not.toContain(oversized);
+    expect(body.error.message).not.toContain(oversized);
   });
 
-  it("returns 400 for invalid channel without echoing field value", () => {
+  it("returns 400 for invalid channel without echoing field value", async () => {
     const invalidChannel = "secret-channel-value";
-    const result = post({
+    const result = await post({
       scenario: "test scenario",
       context: { channel: invalidChannel }
     });
-    const body = result.body as { message: string };
+    const body = result.body as { error: { message: string } };
 
     expect(result.statusCode).toBe(400);
-    expect(body.message).not.toContain(invalidChannel);
+    expect(body.error.message).not.toContain(invalidChannel);
   });
 
-  it("returns 202 with full valid context", () => {
-    const result = post({
+  it("returns analysis response with full valid context", async () => {
+    const result = await post({
       scenario: "A stranger offered me a job and asked for my bank details",
       context: {
         channel: "line",
@@ -69,10 +81,10 @@ describe("POST /analysis", () => {
       }
     });
 
-    expect(result.statusCode).toBe(202);
+    expect(result.statusCode).toBe(200);
   });
 });
 
 function post(body: unknown) {
-  return handleAnalysisRequest(body, config);
+  return handleAnalysisRequest(body, config, service);
 }
