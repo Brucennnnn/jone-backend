@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { loadConfig } from "../src/config.js";
-import { createHealthResponse } from "../src/health.js";
+import {
+  createDependencyHealthResponse,
+  createHealthResponse
+} from "../src/health.js";
+import type { DependencyHealth } from "../src/ollama.js";
 
 describe("health foundation", () => {
   it("creates the Express app without binding a port", () => {
@@ -20,5 +24,25 @@ describe("health foundation", () => {
       service: "jone-backend",
       model: "test-model"
     });
+  });
+
+  it("returns dependency health details from the Ollama client", async () => {
+    const ollamaClient = {
+      checkHealth: async (): Promise<DependencyHealth> => ({
+        status: "ok",
+        reachable: true,
+        model: "test-model",
+        modelAvailable: true
+      })
+    };
+
+    await expect(createDependencyHealthResponse(ollamaClient)).resolves.toEqual(
+      {
+        status: "ok",
+        reachable: true,
+        model: "test-model",
+        modelAvailable: true
+      }
+    );
   });
 });
