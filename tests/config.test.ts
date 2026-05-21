@@ -35,4 +35,15 @@ describe("loadConfig", () => {
       logLevel: "debug"
     });
   });
+
+  it("removes whitespace accidentally copied into the Ollama model name", () => {
+    expect(
+      loadConfig({
+        OLLAMA_MODEL:
+          "hf.co/mradermacher/typhoon-s-thaillm-8b-instruct-research-preview-i1-\n  GGUF:Q4_K_M"
+      }).ollamaModel
+    ).toBe(
+      "hf.co/mradermacher/typhoon-s-thaillm-8b-instruct-research-preview-i1-GGUF:Q4_K_M"
+    );
+  });
 });

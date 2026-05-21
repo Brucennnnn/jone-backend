@@ -25,7 +25,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     host: readString(env.HOST, DEFAULT_CONFIG.host),
     port: readPositiveInteger(env.PORT, DEFAULT_CONFIG.port),
     ollamaBaseUrl: readString(env.OLLAMA_BASE_URL, DEFAULT_CONFIG.ollamaBaseUrl),
-    ollamaModel: readString(env.OLLAMA_MODEL, DEFAULT_CONFIG.ollamaModel),
+    ollamaModel: readModelName(env.OLLAMA_MODEL, DEFAULT_CONFIG.ollamaModel),
     requestTimeoutMs: readPositiveInteger(
       env.REQUEST_TIMEOUT_MS,
       DEFAULT_CONFIG.requestTimeoutMs
@@ -41,6 +41,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
 function readString(value: string | undefined, fallback: string): string {
   const trimmed = value?.trim();
   return trimmed ? trimmed : fallback;
+}
+
+function readModelName(value: string | undefined, fallback: string): string {
+  const sanitized = value?.replace(/\s+/g, "");
+  return readString(sanitized, fallback);
 }
 
 function readPositiveInteger(value: string | undefined, fallback: number): number {
