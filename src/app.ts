@@ -8,10 +8,14 @@ import {
   type DependencyHealthClient
 } from "./health.js";
 import { OllamaClient } from "./ollama.js";
+import { createTrendRoutes } from "./trends/http.js";
+import type { TrendService } from "./trends/service.js";
+import { createStaticTrendService } from "./trends/staticTrendService.js";
 
 export interface AppDependencies {
   ollamaClient?: DependencyHealthClient;
   analysisService: AnalysisService;
+  trendService?: TrendService;
 }
 
 export function createApp(
@@ -37,6 +41,7 @@ export function createApp(
   });
 
   app.use(createAnalysisRoutes(config, dependencies.analysisService));
+  app.use(createTrendRoutes(dependencies.trendService ?? createStaticTrendService()));
 
   return app;
 }
